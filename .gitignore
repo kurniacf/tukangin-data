@@ -1,5 +1,8 @@
 .env
 /node_modules
+<<<<<<< HEAD
 npm-debug.log
 .DS_Store
 /*.envnode_modules
+=======
+>>>>>>> 4dd6e15b96062e64885c0287249b41d6bf513276
