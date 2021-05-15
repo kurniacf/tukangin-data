@@ -45,10 +45,10 @@ app.get("/customer/:id", async(req, res)=>{
 // create
 app.post("/customer", async (req, res)=>{
     try {
-        const {name, email, address, handphone, avatar, password} = req.body;
+        const {name, email, jalan, nomor_rumah, handphone, avatar, password} = req.body;
         const newCustomer = await pool.query(
-            "INSERT INTO customer (name, email, address, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *", 
-            [name, email, address, handphone, avatar, password]
+            "INSERT INTO customer (name, email, jalan, nomor_rumah, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *", 
+            [name, email, jalan, nomor_rumah, handphone, avatar, password]
         );
         res.json(newCustomer.rows[0]);
     } catch (err) {
@@ -83,7 +83,7 @@ app.delete("/customer/:id", async(req, res)=>{
     }
 });
 
-// alamat CRUD
+// ALAMAT CRUD
 app.get("/alamat", async(req, res)=>{
     try {
         const allAlamat = await pool.query("SELECT * FROM alamat");
@@ -107,10 +107,10 @@ app.get("/alamat/:id", async(req, res)=>{
 // create
 app.post("/alamat", async (req, res)=>{
     try {
-        const {customer_id, provinsi, kabupaten, kelurahan, address} = req.body;
+        const {customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah} = req.body;
         const newAlamat = await pool.query(
-            "INSERT INTO alamat (customer_id, provinsi, kabupaten, kelurahan, address) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
-            [customer_id, provinsi, kabupaten, kelurahan, address]
+            "INSERT INTO alamat (customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", 
+            [customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah]
         );
         res.json(newAlamat.rows[0]);
     } catch (err) {
@@ -122,11 +122,11 @@ app.post("/alamat", async (req, res)=>{
 app.put("/alamat/:id", async(req, res)=>{
     try {
         const {id} = req.params;    //WHERE
-        const {customer_id, provinsi, kabupaten, kelurahan, address} = req.body; //SET
+        const {customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah} = req.body; //SET
 
         const updateAlamat = await pool.query(
-            "UPDATE alamat SET customer_id = $1, provinsi = $2, kabupaten = $3, kelurahan = $4, address = $5 WHERE id = $6",
-            [customer_id, provinsi, kabupaten, kelurahan, address, id]
+            "UPDATE alamat SET customer_id = $1, provinsi = $2, kabupaten = $3, kelurahan = $4, jalan = $5, nomor_rumah = $6 WHERE id = $7",
+            [customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah, id]
         );
         res.json("alamat was updated!");
     } catch (err) {
