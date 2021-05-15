@@ -47,7 +47,7 @@ app.post("/customer", async (req, res)=>{
     try {
         const {name, email, address, handphone, avatar, password} = req.body;
         const newCustomer = await pool.query(
-            "INSERT INTO customer (name, email, address, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", 
+            "INSERT INTO customer (name, email, address, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *", 
             [name, email, address, handphone, avatar, password]
         );
         res.json(newCustomer.rows[0]);
@@ -60,11 +60,11 @@ app.post("/customer", async (req, res)=>{
 app.put("/customer/:id", async(req, res)=>{
     try {
         const {id} = req.params;    //WHERE
-        const {name, email, address, handphone, avatar, password} = req.body; //SET
+        const {name, email, handphone, avatar, password} = req.body; //SET
 
         const updateCustomer = await pool.query(
-            "UPDATE customer SET name = $1, email = $2, address = $3, handphone = $4, avatar = $5, password = $6 WHERE id = $7",
-            [name, email, address, handphone, avatar, password, id]
+            "UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 = $6 WHERE id = $7",
+            [name, email, handphone, avatar, password, id]
         );
         res.json("customer was updated!");
     } catch (err) {
@@ -82,6 +82,69 @@ app.delete("/customer/:id", async(req, res)=>{
         console.error(err.message);
     }
 });
+
+// alamat CRUD
+app.get("/alamat", async(req, res)=>{
+    try {
+        const allAlamat = await pool.query("SELECT * FROM alamat");
+        res.json(allAlamat.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// get single
+app.get("/alamat/:id", async(req, res)=>{
+    const {id} = req.params;
+    try {
+        const singleAlamat = await pool.query("SELECT * FROM alamat WHERE id = ($1)", [id]);
+        res.json(singleAlamat.rows[0]);
+    } catch (err) {
+        
+    }
+});
+
+// create
+app.post("/alamat", async (req, res)=>{
+    try {
+        const {customer_id, provinsi, kabupaten, kelurahan, address} = req.body;
+        const newAlamat = await pool.query(
+            "INSERT INTO alamat (customer_id, provinsi, kabupaten, kelurahan, address) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
+            [customer_id, provinsi, kabupaten, kelurahan, address]
+        );
+        res.json(newAlamat.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// update
+app.put("/alamat/:id", async(req, res)=>{
+    try {
+        const {id} = req.params;    //WHERE
+        const {customer_id, provinsi, kabupaten, kelurahan, address} = req.body; //SET
+
+        const updateAlamat = await pool.query(
+            "UPDATE alamat SET customer_id = $1, provinsi = $2, kabupaten = $3, kelurahan = $4, address = $5 WHERE id = $6",
+            [customer_id, provinsi, kabupaten, kelurahan, address, id]
+        );
+        res.json("alamat was updated!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+// delete
+app.delete("/alamat/:id", async(req, res)=>{
+    try {
+        const {id} = req.params;
+        const deleteAlamat = await pool.query("DELETE FROM alamat WHERE id = $1", [id]);
+        res.json("alamat delete!");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 
 // dashboard route
 app.use("/dashboard", require("./routes/dashboard"));

@@ -2,11 +2,11 @@ CREATE DATABASE apk-pkm
 
 CREATE TABLE customer(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    email VARCHAR (255),
-    address VARCHAR(255),
-    handphone VARCHAR(50),
-    avatar BYTEA
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR (50) NOT NULL,
+    handphone VARCHAR(15) NOT NULL,
+    avatar BYTEA,
+    password VARCHAR(255) NOT NULL
 );
 
 -- fake users
@@ -17,3 +17,12 @@ VALUES ('Aurora', 'aurora@gmail.com', 'surabaya' ,'085741234', null, 'ikigayo123
 -- http://localhost:5000/auth/register
 -- http://localhost:5000/auth/login
 -- http://localhost:5000/customer
+
+CREATE TABLE alamat(
+    id SERIAL PRIMARY KEY,
+    customer_id BIGINT REFERENCES customer (id) NOT NULL,
+    provinsi VARCHAR(255),
+    kabupaten VARCHAR(255),
+    kelurahan VARCHAR(255),
+    address VARCHAR(255)
+);
