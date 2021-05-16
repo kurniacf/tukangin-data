@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const pool = require("./db");
+//const pool = require("./db");
+const {pool} = require('./config')
 const cors = require("cors");
 const port = process.env.PORT || 5000;
 
@@ -123,7 +124,7 @@ app.put("/alamat/:id", async(req, res)=>{
     try {
         const {id} = req.params;    //WHERE
         const {customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah} = req.body; //SET
-
+        
         const updateAlamat = await pool.query(
             "UPDATE alamat SET customer_id = $1, provinsi = $2, kabupaten = $3, kelurahan = $4, jalan = $5, nomor_rumah = $6 WHERE id = $7",
             [customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah, id]
