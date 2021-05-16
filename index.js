@@ -64,7 +64,7 @@ app.put("/customer/:id", async(req, res)=>{
         const {name, email, handphone, avatar, password} = req.body; //SET
 
         const updateCustomer = await pool.query(
-            "UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 = $6 WHERE id = $7",
+            "UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 WHERE id = $6",
             [name, email, handphone, avatar, password, id]
         );
         res.json("customer was updated!");
@@ -100,6 +100,17 @@ app.get("/alamat/:id", async(req, res)=>{
     try {
         const singleAlamat = await pool.query("SELECT * FROM alamat WHERE id = ($1)", [id]);
         res.json(singleAlamat.rows[0]);
+    } catch (err) {
+        
+    }
+});
+
+// get single customer_id
+app.get("/alamat/customer/:customer_id", async(req, res)=>{
+    const {customer_id} = req.body;
+    try {
+        const alamatCustomer = await pool.query("SELECT * FROM alamat WHERE customer_id = ($1)", [customer_id]);
+        res.json(alamatCustomer.rows);
     } catch (err) {
         
     }

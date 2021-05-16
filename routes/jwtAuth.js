@@ -8,8 +8,9 @@ const authorization = require("../middleware/authorization");
 // register
 router.post("/register", validInfo, async(req, res)=>{
     // 1. destructure the req.body (name, email, handphone, password)
-    const { name, email, handphone, password } = req.body;
+    
     try {
+        const { name, email, handphone, password } = req.body;
         // 2. cek customer apakah ada (if user exist then throw error)
         const user = await pool.query("SELECT * FROM customer WHERE email = $1", [email]);
         if(user.rows.length !== 0){
@@ -21,13 +22,13 @@ router.post("/register", validInfo, async(req, res)=>{
         const bcryptPassword = await bcrypt.hash(password, salt);
 
         // 4. enter the new customer to database
-        let newCustomer = await pool.query("INSERT INTO customer (name, email, handphone, password) VALUES ($1, $2, $3, $4) RETURNING *", 
+        const newCustomer = await pool.query("INSERT INTO customer (name, email, handphone, password) VALUES ($1, $2, $3, $4) RETURNING *", 
         [name, email, handphone, bcryptPassword]);
         
         // 5. generating our jwt token
         const token = jwtGenerator(newCustomer.rows[0].id);
-        //res.json({token});
-        res.json(user.rows[0]);
+        res.json({token});
+        //res.json(user.rows[0]);
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");
@@ -37,8 +38,9 @@ router.post("/register", validInfo, async(req, res)=>{
 // Login Route
 router.post("/login", validInfo, async(req, res)=> {
     // 1. destructure the req.body (name, email, handphone, password)
-    const {email, password} = req.body;
+    
     try {
+        const {email, password} = req.body;
         // 2. Cek customer jika tidak ada (throw error)
         const user = await pool.query("SELECT * FROM customer WHERE email = $1", [email]);
         if(user.rows.length === 0){
@@ -54,8 +56,8 @@ router.post("/login", validInfo, async(req, res)=> {
 
         // 4. give jwt token
         const token = jwtGenerator(user.rows[0].id);
-        //res.json({token});
-        res.json(user.rows[0]);
+        res.json({token});
+        //res.json(user.rows[0]);
 
     } catch (err) {
         console.error(err.message);
