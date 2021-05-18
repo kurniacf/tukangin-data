@@ -25,5 +25,6 @@ CREATE TABLE alamat(
     kabupaten VARCHAR(255),
     kelurahan VARCHAR(255),
     jalan VARCHAR(255),
-    nomor_rumah VARCHAR(50)
+    nomor_rumah VARCHAR(50),
+    kode_pos VARCHAR(25)
 );
