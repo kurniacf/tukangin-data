@@ -14,7 +14,7 @@ router.post("/register", validInfo, async(req, res)=>{
         // 2. cek customer apakah ada (if user exist then throw error)
         const user = await pool.query("SELECT * FROM customer WHERE email = $1", [email]);
         if(user.rows.length !== 0){
-            return res.status(401).send("User customer sudah ada!");
+            return res.status(401).json("User customer sudah ada!");
         }
 
         // 3. Brcypt the customer password
