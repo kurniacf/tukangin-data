@@ -1,4 +1,4 @@
-CREATE DATABASE apk-pkm
+--CREATE DATABASE apk-pkm
 
 CREATE TABLE customer(
     id SERIAL PRIMARY KEY,
@@ -10,8 +10,8 @@ CREATE TABLE customer(
 );
 
 -- fake users
-INSERT INTO customer (name, email, address, handphone, avatar, password) 
-VALUES ('Aurora', 'aurora@gmail.com', 'surabaya' ,'085741234', null, 'ikigayo123');
+-- INSERT INTO customer (name, email, address, handphone, avatar, password) 
+-- VALUES ('Aurora', 'aurora@gmail.com', 'surabaya' ,'085741234', null, 'ikigayo123');
 
 -- AKSES POSTMAN SERVER
 -- http://localhost:5000/auth/register
@@ -23,6 +23,7 @@ CREATE TABLE alamat(
     customer_id BIGINT REFERENCES customer (id) NOT NULL,
     provinsi VARCHAR(255),
     kabupaten VARCHAR(255),
+    kecamatan VARCHAR(255),
     kelurahan VARCHAR(255),
     jalan VARCHAR(255),
     nomor_rumah VARCHAR(50),
