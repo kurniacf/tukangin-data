@@ -1,15 +1,30 @@
 const express = require("express");
 const app = express();
-//const pool = require("./db");
-const {pool} = require('./config')
+const pool = require("./db");
+//const {pool} = require('./config')
 const cors = require("cors");
-const port = process.env.PORT || 5000;
+const path = require("path");
+const PORT = process.env.PORT || 5000;
+
+// process.env.PORT
+//process.env.NODE_ENV => production or undefined
 
 // testing
 const importData = require("./testing.json");
 
 app.use(express.json());
 app.use(cors());
+
+//app.use(express.static(path.join(__dirname, "client/public")));
+app.use(express.static("./client/build"));
+
+if (process.env.NODE_ENV === "production") {
+    //server static content
+    //npm run build
+    app.use(express.static(path.join(__dirname, "client/build")));
+}
+console.log(__dirname);
+console.log(path.join(__dirname, "client/build"));
 
 // testing
 app.get("/testing", (req, res)=>{
@@ -166,6 +181,10 @@ app.get("/", (req, res)=>{
     res.send("Hello World");
 });
 
-app.listen(port, ()=> {
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client/build/index.html"));
+});
+
+app.listen(PORT, ()=> {
     console.log(`Server starts on http://localhost:${5000}`);
 });
