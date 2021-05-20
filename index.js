@@ -5,6 +5,8 @@ const pool = require("./db");
 const cors = require("cors");
 const path = require("path");
 const PORT = process.env.PORT || 5000;
+const multer = require('multer');
+const knex = require('knex');
 
 // process.env.PORT
 //process.env.NODE_ENV => production or undefined
@@ -54,17 +56,17 @@ app.get("/customer/:id", async(req, res)=>{
         const singleCustomer = await pool.query("SELECT * FROM customer WHERE id = ($1)", [id]);
         res.json(singleCustomer.rows[0]);
     } catch (err) {
-        
+        console.error(err.message);
     }
 });
 
 // create
 app.post("/customer", async (req, res)=>{
     try {
-        const {name, email, jalan, nomor_rumah, handphone, avatar, password} = req.body;
+        const {name, email, handphone, avatar, password} = req.body;
         const newCustomer = await pool.query(
-            "INSERT INTO customer (name, email, jalan, nomor_rumah, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *", 
-            [name, email, jalan, nomor_rumah, handphone, avatar, password]
+            "INSERT INTO customer (name, email, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
+            [name, email, handphone, avatar, password]
         );
         res.json(newCustomer.rows[0]);
     } catch (err) {
@@ -98,7 +100,7 @@ app.delete("/customer/:id", async(req, res)=>{
         console.error(err.message);
     }
 });
-
+// ----------------------------------------------------------------------------
 // ALAMAT CRUD
 app.get("/alamat", async(req, res)=>{
     try {
@@ -116,28 +118,28 @@ app.get("/alamat/:id", async(req, res)=>{
         const singleAlamat = await pool.query("SELECT * FROM alamat WHERE id = ($1)", [id]);
         res.json(singleAlamat.rows[0]);
     } catch (err) {
-        
+        console.error(err.message);
     }
 });
 
 // get single customer_id
-app.get("/alamat/customer/:customer_id", async(req, res)=>{
-    const {customer_id} = req.body;
+app.get("/alamat/idcus/:customer_id", async(req, res)=>{
+    const {customer_id} = req.params;
     try {
-        const alamatCustomer = await pool.query("SELECT * FROM alamat WHERE customer_id = ($1)", [customer_id]);
-        res.json(alamatCustomer.rows);
+        const singleAlamat = await pool.query("SELECT * FROM alamat WHERE customer_id = ($1)", [customer_id]);
+        res.json(singleAlamat.rows);
     } catch (err) {
-        
+        console.error(err.message);
     }
 });
 
 // create
 app.post("/alamat", async (req, res)=>{
     try {
-        const {customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah} = req.body;
+        const {customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos} = req.body;
         const newAlamat = await pool.query(
-            "INSERT INTO alamat (customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", 
-            [customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah]
+            "INSERT INTO alamat (customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *", 
+            [customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos]
         );
         res.json(newAlamat.rows[0]);
     } catch (err) {
@@ -149,11 +151,11 @@ app.post("/alamat", async (req, res)=>{
 app.put("/alamat/:id", async(req, res)=>{
     try {
         const {id} = req.params;    //WHERE
-        const {customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah} = req.body; //SET
+        const {customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos} = req.body; //SET
         
         const updateAlamat = await pool.query(
-            "UPDATE alamat SET customer_id = $1, provinsi = $2, kabupaten = $3, kelurahan = $4, jalan = $5, nomor_rumah = $6 WHERE id = $7",
-            [customer_id, provinsi, kabupaten, kelurahan, jalan, nomor_rumah, id]
+            "UPDATE alamat SET customer_id=$1, provinsi=$2, kabupaten=$3, kecamatan=$4, kelurahan=$5, jalan=$6, nomor_rumah=$7, kode_pos=$8 WHERE id = $9",
+            [customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos]
         );
         res.json("alamat was updated!");
     } catch (err) {
@@ -171,6 +173,115 @@ app.delete("/alamat/:id", async(req, res)=>{
         console.error(err.message);
     }
 });
+
+// IMAGE ---------------------------
+// Image upload 
+const db = knex({
+    client: 'pg',
+    connection: {
+        host: 'localhost',
+        user: 'postgres',
+        password: 'kcf170202',
+        database: 'apk-pkm',
+    },
+});
+const imageUpload = multer({
+    dest: 'images',
+});
+
+// image POST
+app.post('/customer/avatar', imageUpload.single('avatar'), async (req, res) =>{
+    try {
+        const { filename, mimetype, size } = req.file;
+        const filepath = req.file.path;
+        const newAvatar = await pool.query(
+            "INSERT INTO avatar (filename, filepath, mimetype, size) VALUES ($1, $2, $3, $4) RETURNING *", 
+            [filename, filepath, mimetype, size]
+        );
+        res.json({ success: true, filename });
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+
+// IMAGE GET
+
+// app.get('/customer/avatar/:filename', (req, res) => {
+//     const { filename } = req.params;
+//     pool.query("SELECT * FROM avatar WHERE filename = ($1)", [filename])
+//     .then(images => {
+//         if (images[0]) {
+//             const dirname = path.resolve();
+//             const fullfilepath = path.join(dirname, images[0].filepath);
+//             return res.type(images[0].mimetype).sendFile(fullfilepath);
+//         }
+//         return Promise.reject(new Error('Image does not exist'));
+//     })
+//     .catch(err =>
+//         res.status(404).json({ success: false, message: 'not found', stack: err.stack }),
+//     );
+// });
+
+
+app.get('/customer/avatar/:filename', async(req, res) => {
+    const { filename } = req.params;
+    try {
+        const singleAvatar = await pool.query("SELECT * FROM avatar WHERE filename = ($1)", [filename]).then(images=>{
+            if(images[0]){
+                const dirname = path.resolve();
+                const fullfilepath = path.join(dirname, images[0].filepath);
+                res.json(type(images[0].mimetype).sendFile(fullfilepath));
+            }
+        //res.json( "image ga ada");
+    });
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+
+    // db.select('*')
+    // .from('avatar')
+    // .where({ filename })
+    // .then(images => {
+    //   if (images[0]) {
+    //     const dirname = path.resolve();
+    //     const fullfilepath = path.join(dirname, images[0].filepath);
+    //     return res.type(images[0].mimetype).sendFile(fullfilepath);
+    //   }
+    //   return Promise.reject(new Error('Image does not exist'));
+    // })
+    // .catch(err =>
+    //   res
+    //     .status(404)
+    //     .json({ success: false, message: 'not found', stack: err.stack }),
+    // );
+
+
+
+
+// app.get('/image/:filename', (req, res) => {
+//   const { filename } = req.params;
+//   db.select('*')
+//     .from('image_files')
+//     .where({ filename })
+//     .then(images => {
+//       if (images[0]) {
+//         const dirname = path.resolve();
+//         const fullfilepath = path.join(dirname, images[0].filepath);
+//         return res.type(images[0].mimetype).sendFile(fullfilepath);
+//       }
+//       return Promise.reject(new Error('Image does not exist'));
+//     })
+//     .catch(err =>
+//       res
+//         .status(404)
+//         .json({ success: false, message: 'not found', stack: err.stack }),
+//     );
+// });
+
+// ------------- image
 
 
 // dashboard route

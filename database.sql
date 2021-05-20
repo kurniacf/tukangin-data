@@ -29,3 +29,13 @@ CREATE TABLE alamat(
     nomor_rumah VARCHAR(50),
     kode_pos VARCHAR(25)
 );
+
+-- Avatar Table
+CREATE TABLE avatar(
+    id SERIAL NOT NULL PRIMARY KEY,
+    customer_id BIGINT REFERENCES customer (id) NOT NULL,
+    filename TEXT UNIQUE NOT NULL,
+    filepath TEXT NOT NULL,
+    mimetype TEXT NOT NULL,
+    size BIGINT NOT NULL
+);
