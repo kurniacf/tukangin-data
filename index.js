@@ -19,7 +19,6 @@ const db = knex({
         port:  process.env.PG_PORT
     },
 });
-
 // process.env.PORT
 //process.env.NODE_ENV => production or undefined
 
@@ -45,12 +44,13 @@ app.get("/testing", (req, res)=>{
     res.send(importData);
 });
 
-
-// routes
-
 // Register and Login Routes
 app.use("/auth", require("./routes/jwtAuth"));
 
+// Mitra Routes
+app.use("/mitra", require("./routes/mitra"));
+
+// ---------------------- CUSTOMER ------------------------- 
 // get all
 app.get("/customer", async(req, res)=>{
     try {
@@ -60,7 +60,6 @@ app.get("/customer", async(req, res)=>{
         console.error(err.message);
     }
 });
-
 // get single
 app.get("/customer/:id", async(req, res)=>{
     const {id} = req.params;
@@ -71,7 +70,6 @@ app.get("/customer/:id", async(req, res)=>{
         console.error(err.message);
     }
 });
-
 // create
 app.post("/customer", async (req, res)=>{
     try {
@@ -85,7 +83,6 @@ app.post("/customer", async (req, res)=>{
         console.error(err.message);
     }
 });
-
 // update
 app.put("/customer/:id", async(req, res)=>{
     try {
@@ -101,7 +98,6 @@ app.put("/customer/:id", async(req, res)=>{
         console.error(err.message);
     }
 });
-
 // delete
 app.delete("/customer/:id", async(req, res)=>{
     try {
@@ -112,8 +108,9 @@ app.delete("/customer/:id", async(req, res)=>{
         console.error(err.message);
     }
 });
+// ------------------------------CUSTOMER--------------------------------------
 // ----------------------------------------------------------------------------
-// ALAMAT CRUD
+// =============================ALAMAT CRUD------------------------------------
 app.get("/alamat", async(req, res)=>{
     try {
         const allAlamat = await pool.query("SELECT * FROM alamat");
@@ -185,22 +182,11 @@ app.delete("/alamat/:id", async(req, res)=>{
         console.error(err.message);
     }
 });
+// -----------------------------ALAMAT CRUD------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------IMAGE (Avatar, Mitra, KTP, Selfie KTP-----------------------
 
-// IMAGE ---------------------------
 // Image upload 
-const db = knex({
-    client: 'pg',
-    connection: {
-        host: process.env.PG_HOST,
-        user: process.env.PG_USER,
-        password: process.env.PG_PASSWORD,
-        database: process.env.PG_DATABASE,
-        port:  process.env.PG_PORT
-    },
-});
-
-
-
 const imageUpload = multer({
     dest: 'images',
 });
@@ -241,7 +227,6 @@ app.get('/customer/avatar/:filename', (req, res) => {
             .json({ success: false, message: 'not found', stack: err.stack }),
         );
 });
-
 
 // ------------- image
 

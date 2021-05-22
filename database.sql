@@ -33,7 +33,23 @@ CREATE TABLE alamat(
 -- Avatar Table
 CREATE TABLE avatar(
     id SERIAL NOT NULL PRIMARY KEY,
-    customer_id BIGINT REFERENCES customer (id) NOT NULL,
+    filename TEXT UNIQUE NOT NULL,
+    filepath TEXT NOT NULL,
+    mimetype TEXT NOT NULL,
+    size BIGINT NOT NULL
+);
+
+-- Mitra Table 
+CREATE TABLE mitra(
+    id SERIAL NOT NULL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR (255),
+    image text
+);
+
+-- image mitra table
+CREATE TABLE image_mitra(
+    id SERIAL NOT NULL PRIMARY KEY,
     filename TEXT UNIQUE NOT NULL,
     filepath TEXT NOT NULL,
     mimetype TEXT NOT NULL,
