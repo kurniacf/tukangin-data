@@ -8,6 +8,18 @@ const PORT = process.env.PORT || 5000;
 const multer = require('multer');
 const knex = require('knex');
 
+// Routes for Image 
+const db = knex({
+    client: 'pg',
+    connection: {
+        host: process.env.PG_HOST,
+        user: process.env.PG_USER,
+        password: process.env.PG_PASSWORD,
+        database: process.env.PG_DATABASE,
+        port:  process.env.PG_PORT
+    },
+});
+
 // process.env.PORT
 //process.env.NODE_ENV => production or undefined
 
@@ -179,12 +191,16 @@ app.delete("/alamat/:id", async(req, res)=>{
 const db = knex({
     client: 'pg',
     connection: {
-        host: 'localhost',
-        user: 'postgres',
-        password: 'kcf170202',
-        database: 'apk-pkm',
+        host: process.env.PG_HOST,
+        user: process.env.PG_USER,
+        password: process.env.PG_PASSWORD,
+        database: process.env.PG_DATABASE,
+        port:  process.env.PG_PORT
     },
 });
+
+
+
 const imageUpload = multer({
     dest: 'images',
 });
@@ -206,80 +222,26 @@ app.post('/customer/avatar', imageUpload.single('avatar'), async (req, res) =>{
 
 
 // IMAGE GET
-
-// app.get('/customer/avatar/:filename', (req, res) => {
-//     const { filename } = req.params;
-//     pool.query("SELECT * FROM avatar WHERE filename = ($1)", [filename])
-//     .then(images => {
-//         if (images[0]) {
-//             const dirname = path.resolve();
-//             const fullfilepath = path.join(dirname, images[0].filepath);
-//             return res.type(images[0].mimetype).sendFile(fullfilepath);
-//         }
-//         return Promise.reject(new Error('Image does not exist'));
-//     })
-//     .catch(err =>
-//         res.status(404).json({ success: false, message: 'not found', stack: err.stack }),
-//     );
-// });
-
-
-app.get('/customer/avatar/:filename', async(req, res) => {
+app.get('/customer/avatar/:filename', (req, res) => {
     const { filename } = req.params;
-    try {
-        const singleAvatar = await pool.query("SELECT * FROM avatar WHERE filename = ($1)", [filename]).then(images=>{
-            if(images[0]){
+    db.select('*')
+        .from('avatar')
+        .where({ filename })
+        .then(images => {
+            if (images[0]) {
                 const dirname = path.resolve();
                 const fullfilepath = path.join(dirname, images[0].filepath);
-                res.json(type(images[0].mimetype).sendFile(fullfilepath));
+                return res.type(images[0].mimetype).sendFile(fullfilepath);
             }
-        //res.json( "image ga ada");
-    });
-    } catch (err) {
-        console.error(err.message);
-    }
+            return Promise.reject(new Error('Image does not exist'));
+        })
+        .catch(err =>
+        res
+            .status(404)
+            .json({ success: false, message: 'not found', stack: err.stack }),
+        );
 });
 
-
-    // db.select('*')
-    // .from('avatar')
-    // .where({ filename })
-    // .then(images => {
-    //   if (images[0]) {
-    //     const dirname = path.resolve();
-    //     const fullfilepath = path.join(dirname, images[0].filepath);
-    //     return res.type(images[0].mimetype).sendFile(fullfilepath);
-    //   }
-    //   return Promise.reject(new Error('Image does not exist'));
-    // })
-    // .catch(err =>
-    //   res
-    //     .status(404)
-    //     .json({ success: false, message: 'not found', stack: err.stack }),
-    // );
-
-
-
-
-// app.get('/image/:filename', (req, res) => {
-//   const { filename } = req.params;
-//   db.select('*')
-//     .from('image_files')
-//     .where({ filename })
-//     .then(images => {
-//       if (images[0]) {
-//         const dirname = path.resolve();
-//         const fullfilepath = path.join(dirname, images[0].filepath);
-//         return res.type(images[0].mimetype).sendFile(fullfilepath);
-//       }
-//       return Promise.reject(new Error('Image does not exist'));
-//     })
-//     .catch(err =>
-//       res
-//         .status(404)
-//         .json({ success: false, message: 'not found', stack: err.stack }),
-//     );
-// });
 
 // ------------- image
 
