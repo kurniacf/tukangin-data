@@ -2,7 +2,10 @@ const pool = require("../db");
 const multer = require('multer');
 const knex = require('knex');
 const path = require("path");
+const { request } = require("http");
 const router = require("express").Router();
+const bodyParser=require("body-parser");
+const express = require('express');
 
 // Routes for Image 
 const db = knex({
@@ -16,12 +19,25 @@ const db = knex({
     },
 });
 
+// router.use(bodyParser.urlencoded({ extended: true }));
+// router.use(bodyParser.json());
+// router.use(bodyParser.raw());
+
+// router.use(express.json());
+// router.use(express.urlencoded({
+//     extended: true
+// }));
+router.use(express.json());
+router.use(express.urlencoded({
+    extended: true
+}));
+
 // post mitra
-router.post("/", async(req, res)=>{
+router.post('/', async(req, res)=>{
     try {
         const {name, description, image} = req.body;
         const newMitra = await pool.query(
-            "INSERT INTO mitra (name, description, image) VALUES ($1, $2, $3) RETURNING *", 
+            'INSERT INTO mitra (name, description, image) VALUES ($1, $2, $3) RETURNING *', 
             [name, description, image]
         );
         res.json(newMitra.rows[0]);
@@ -30,10 +46,11 @@ router.post("/", async(req, res)=>{
     }
 });
 
+
 // get all
-router.get("/", async(req, res)=>{
+router.get('/', async(req, res)=>{
     try {
-        const allMitra = await pool.query("SELECT * FROM mitra");
+        const allMitra = await pool.query('SELECT * FROM mitra');
         res.json(allMitra.rows);
     } catch (err) {
         console.error(err.message);
@@ -41,10 +58,10 @@ router.get("/", async(req, res)=>{
 });
 
 // get mitra from id
-router.get("/:id", async(req, res)=>{
+router.get('/:id', async(req, res)=>{
     const {id} = req.params;
     try {
-        const singleMitra = await pool.query("SELECT * FROM mitra WHERE id = ($1)", [id]);
+        const singleMitra = await pool.query('SELECT * FROM mitra WHERE id = ($1)', [id]);
         res.json(singleMitra.rows[0]);
     } catch (err) {
         console.error(err.message);
@@ -52,13 +69,15 @@ router.get("/:id", async(req, res)=>{
 });
 
 // update mitra
-router.put("/:id", async(req, res)=>{
+router.put('/:id', async(req, res)=>{
     try {
         const {id} = req.params;    //WHERE
         const {name, description, image} = req.body; //SET
 
+        const singleMitraImage = await pool.query('SELECT filename FROM avatar WHERE id = ($1)', [id]);
+
         const updateMitra = await pool.query(
-            "UPDATE mitra SET name = $1, description = $2, image = $3 WHERE id = $4",
+            'UPDATE mitra SET name = $1, description = $2, image = $3 WHERE id = $4',
             [name, description, image, id]
         );
         res.json("mitra was updated!");
@@ -68,10 +87,10 @@ router.put("/:id", async(req, res)=>{
 });
 
 // delete mitra
-router.delete("/:id", async(req, res)=>{
+router.delete('/:id', async(req, res)=>{
     try {
         const {id} = req.params;
-        const deleteMitra = await pool.query("DELETE FROM mitra WHERE id = $1", [id]);
+        const deleteMitra = await pool.query('DELETE FROM mitra WHERE id = $1', [id]);
         res.json("mitra delete!");
     } catch (err) {
         console.error(err.message);
@@ -89,7 +108,7 @@ router.post('/image', imageUploadMitra.single('img'), async (req, res) =>{
         const { filename, mimetype, size } = req.file;
         const filepath = req.file.path;
         const newImageMitra = await pool.query(
-            "INSERT INTO image_mitra (filename, filepath, mimetype, size) VALUES ($1, $2, $3, $4) RETURNING *", 
+            'INSERT INTO image_mitra (filename, filepath, mimetype, size) VALUES ($1, $2, $3, $4) RETURNING *', 
             [filename, filepath, mimetype, size]
         );
         res.json({ success: true, filename });

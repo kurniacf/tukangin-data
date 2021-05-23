@@ -2,10 +2,10 @@ const router = require("express").Router();
 const pool = require("../db");
 const authorization = require("../middleware/authorization");
 
-router.get("/", authorization, async(req, res)=>{
+router.get('/', authorization, async(req, res)=>{
     try {
         const user = await pool.query(
-            "SELECT * FROM customer WHERE id = $1",
+            'SELECT * FROM customer WHERE id = $1',
             [req.user] 
         );
         res.json(user.rows[0]);

@@ -8,6 +8,11 @@ const PORT = process.env.PORT || 5000;
 const multer = require('multer');
 const knex = require('knex');
 
+app.use(express.json());
+app.use(express.urlencoded({
+    extended: true
+}));
+
 // Routes for Image 
 const db = knex({
     client: 'pg',
@@ -54,7 +59,7 @@ app.use("/mitra", require("./routes/mitra"));
 // get all
 app.get("/customer", async(req, res)=>{
     try {
-        const allCustomer = await pool.query("SELECT * FROM customer");
+        const allCustomer = await pool.query('SELECT * FROM customer');
         res.json(allCustomer.rows);
     } catch (err) {
         console.error(err.message);
@@ -64,7 +69,7 @@ app.get("/customer", async(req, res)=>{
 app.get("/customer/:id", async(req, res)=>{
     const {id} = req.params;
     try {
-        const singleCustomer = await pool.query("SELECT * FROM customer WHERE id = ($1)", [id]);
+        const singleCustomer = await pool.query('SELECT * FROM customer WHERE id = ($1)', [id]);
         res.json(singleCustomer.rows[0]);
     } catch (err) {
         console.error(err.message);
@@ -75,7 +80,7 @@ app.post("/customer", async (req, res)=>{
     try {
         const {name, email, handphone, avatar, password} = req.body;
         const newCustomer = await pool.query(
-            "INSERT INTO customer (name, email, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5) RETURNING *", 
+            'INSERT INTO customer (name, email, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5) RETURNING *', 
             [name, email, handphone, avatar, password]
         );
         res.json(newCustomer.rows[0]);
@@ -88,9 +93,11 @@ app.put("/customer/:id", async(req, res)=>{
     try {
         const {id} = req.params;    //WHERE
         const {name, email, handphone, avatar, password} = req.body; //SET
+        
+        const singleAvatar = await pool.query('SELECT filename FROM avatar WHERE id = ($1)', [id]);
 
         const updateCustomer = await pool.query(
-            "UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 WHERE id = $6",
+            'UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 WHERE id = $6',
             [name, email, handphone, avatar, password, id]
         );
         res.json("customer was updated!");
@@ -102,7 +109,7 @@ app.put("/customer/:id", async(req, res)=>{
 app.delete("/customer/:id", async(req, res)=>{
     try {
         const {id} = req.params;
-        const deleteCustomer = await pool.query("DELETE FROM customer WHERE id = $1", [id]);
+        const deleteCustomer = await pool.query('DELETE FROM customer WHERE id = $1', [id]);
         res.json("customer delete!");
     } catch (err) {
         console.error(err.message);
@@ -113,7 +120,7 @@ app.delete("/customer/:id", async(req, res)=>{
 // =============================ALAMAT CRUD------------------------------------
 app.get("/alamat", async(req, res)=>{
     try {
-        const allAlamat = await pool.query("SELECT * FROM alamat");
+        const allAlamat = await pool.query('SELECT * FROM alamat');
         res.json(allAlamat.rows);
     } catch (err) {
         console.error(err.message);
@@ -124,7 +131,7 @@ app.get("/alamat", async(req, res)=>{
 app.get("/alamat/:id", async(req, res)=>{
     const {id} = req.params;
     try {
-        const singleAlamat = await pool.query("SELECT * FROM alamat WHERE id = ($1)", [id]);
+        const singleAlamat = await pool.query('SELECT * FROM alamat WHERE id = ($1)', [id]);
         res.json(singleAlamat.rows[0]);
     } catch (err) {
         console.error(err.message);
@@ -135,7 +142,7 @@ app.get("/alamat/:id", async(req, res)=>{
 app.get("/alamat/idcus/:customer_id", async(req, res)=>{
     const {customer_id} = req.params;
     try {
-        const singleAlamat = await pool.query("SELECT * FROM alamat WHERE customer_id = ($1)", [customer_id]);
+        const singleAlamat = await pool.query('SELECT * FROM alamat WHERE customer_id = ($1)', [customer_id]);
         res.json(singleAlamat.rows);
     } catch (err) {
         console.error(err.message);
@@ -147,7 +154,7 @@ app.post("/alamat", async (req, res)=>{
     try {
         const {customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos} = req.body;
         const newAlamat = await pool.query(
-            "INSERT INTO alamat (customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *", 
+            'INSERT INTO alamat (customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *', 
             [customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos]
         );
         res.json(newAlamat.rows[0]);
@@ -163,7 +170,7 @@ app.put("/alamat/:id", async(req, res)=>{
         const {customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos} = req.body; //SET
         
         const updateAlamat = await pool.query(
-            "UPDATE alamat SET customer_id=$1, provinsi=$2, kabupaten=$3, kecamatan=$4, kelurahan=$5, jalan=$6, nomor_rumah=$7, kode_pos=$8 WHERE id = $9",
+            'UPDATE alamat SET customer_id=$1, provinsi=$2, kabupaten=$3, kecamatan=$4, kelurahan=$5, jalan=$6, nomor_rumah=$7, kode_pos=$8 WHERE id = $9',
             [customer_id, provinsi, kabupaten, kecamatan, kelurahan, jalan, nomor_rumah, kode_pos]
         );
         res.json("alamat was updated!");
@@ -176,7 +183,7 @@ app.put("/alamat/:id", async(req, res)=>{
 app.delete("/alamat/:id", async(req, res)=>{
     try {
         const {id} = req.params;
-        const deleteAlamat = await pool.query("DELETE FROM alamat WHERE id = $1", [id]);
+        const deleteAlamat = await pool.query('DELETE FROM alamat WHERE id = $1', [id]);
         res.json("alamat delete!");
     } catch (err) {
         console.error(err.message);
@@ -197,7 +204,7 @@ app.post('/customer/avatar', imageUpload.single('avatar'), async (req, res) =>{
         const { filename, mimetype, size } = req.file;
         const filepath = req.file.path;
         const newAvatar = await pool.query(
-            "INSERT INTO avatar (filename, filepath, mimetype, size) VALUES ($1, $2, $3, $4) RETURNING *", 
+            'INSERT INTO avatar (filename, filepath, mimetype, size) VALUES ($1, $2, $3, $4) RETURNING *', 
             [filename, filepath, mimetype, size]
         );
         res.json({ success: true, filename });
