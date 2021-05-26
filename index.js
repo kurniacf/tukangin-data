@@ -24,6 +24,12 @@ const db = knex({
         port:  process.env.PG_PORT
     },
 });
+
+// Image upload 
+const imageUpload = multer({
+    dest: 'images',
+});
+
 // process.env.PORT
 //process.env.NODE_ENV => production or undefined
 
@@ -89,22 +95,51 @@ app.post("/customer", async (req, res)=>{
     }
 });
 // update
-app.put("/customer/:id", async(req, res)=>{
+app.put("/customer/:id", imageUpload.single('avatar'), async(req, res)=>{
     try {
         const {id} = req.params;    //WHERE
         const {name, email, handphone, avatar, password} = req.body; //SET
-        
-        const singleAvatar = await pool.query('SELECT filename FROM avatar WHERE id = ($1)', [id]);
 
+        const fileNameAvatar = await pool.query('SELECT filename FROM avatar WHERE id = ($1)', [id]);
         const updateCustomer = await pool.query(
             'UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 WHERE id = $6',
-            [name, email, handphone, avatar, password, id]
+            [name, email, handphone, fileNameAvatar, password, id]
         );
-        res.json("customer was updated!");
+
+        res.json({ success: true, fileNameAvatar });
     } catch (err) {
         console.error(err.message);
     }
 });
+/*
+app.post('/customer/avatar', imageUpload.single('avatar'), async (req, res) =>{
+    try {
+        const { filename, mimetype, size } = req.file;
+        const filepath = req.file.path;
+        const newAvatar = await pool.query(
+            'INSERT INTO avatar (filename, filepath, mimetype, size) VALUES ($1, $2, $3, $4) RETURNING *', 
+            [filename, filepath, mimetype, size]
+        );
+        res.json({ success: true, filename });
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+const { filename } = req.params;
+    db.select('*')
+        .from('avatar')
+        .where({ filename })
+        .then(images => {
+            if (images[0]) {
+                const dirname = path.resolve();
+                const fullfilepath = path.join(dirname, images[0].filepath);
+                return res.type(images[0].mimetype).sendFile(fullfilepath);
+            }
+            return Promise.reject(new Error('Image does not exist'));
+        })
+*/
+
 // delete
 app.delete("/customer/:id", async(req, res)=>{
     try {
@@ -192,11 +227,6 @@ app.delete("/alamat/:id", async(req, res)=>{
 // -----------------------------ALAMAT CRUD------------------------------------
 // ----------------------------------------------------------------------------
 // ----------------IMAGE (Avatar, Mitra, KTP, Selfie KTP-----------------------
-
-// Image upload 
-const imageUpload = multer({
-    dest: 'images',
-});
 
 // image POST
 app.post('/customer/avatar', imageUpload.single('avatar'), async (req, res) =>{

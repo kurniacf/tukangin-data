@@ -5,7 +5,7 @@ CREATE TABLE customer(
     name VARCHAR(255) NOT NULL,
     email VARCHAR (50) NOT NULL,
     handphone VARCHAR(15) NOT NULL,
-    avatar BYTEA,
+    avatar TEXT,
     password VARCHAR(255) NOT NULL
 );
 
@@ -55,3 +55,17 @@ CREATE TABLE image_mitra(
     mimetype TEXT NOT NULL,
     size BIGINT NOT NULL
 );
+
+-- customer & avatar
+CREATE TABLE customer(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR (50) NOT NULL,
+    handphone VARCHAR(15) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    filename TEXT UNIQUE NOT NULL,
+    filepath TEXT NOT NULL,
+    mimetype TEXT NOT NULL,
+    size BIGINT NOT NULL
+);
+

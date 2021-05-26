@@ -78,9 +78,9 @@ router.put('/:id', async(req, res)=>{
 
         const updateMitra = await pool.query(
             'UPDATE mitra SET name = $1, description = $2, image = $3 WHERE id = $4',
-            [name, description, image, id]
+            [name, description, singleMitraImage, id]
         );
-        res.json("mitra was updated!");
+        res.json({ success: true, singleMitraImage });
     } catch (err) {
         console.error(err.message);
     }
