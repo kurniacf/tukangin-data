@@ -7,11 +7,13 @@ const path = require("path");
 const PORT = process.env.PORT || 5000;
 const multer = require('multer');
 const knex = require('knex');
+const fileUpload = require('express-fileupload');
 
 app.use(express.json());
 app.use(express.urlencoded({
     extended: true
 }));
+app.use(fileUpload());
 
 // Routes for Image 
 const db = knex({
@@ -61,6 +63,9 @@ app.use("/auth", require("./routes/jwtAuth"));
 // Mitra Routes
 app.use("/mitra", require("./routes/mitra"));
 
+// Tukang Routes
+app.use("/tukang", require("./routes/tukang"));
+
 // ---------------------- CUSTOMER ------------------------- 
 // get all
 app.get("/customer", async(req, res)=>{
@@ -85,6 +90,9 @@ app.get("/customer/:id", async(req, res)=>{
 app.post("/customer", async (req, res)=>{
     try {
         const {name, email, handphone, avatar, password} = req.body;
+
+
+
         const newCustomer = await pool.query(
             'INSERT INTO customer (name, email, handphone, avatar, password) VALUES ($1, $2, $3, $4, $5) RETURNING *', 
             [name, email, handphone, avatar, password]
@@ -100,13 +108,34 @@ app.put("/customer/:id", imageUpload.single('avatar'), async(req, res)=>{
         const {id} = req.params;    //WHERE
         const {name, email, handphone, avatar, password} = req.body; //SET
 
-        const fileNameAvatar = await pool.query('SELECT filename FROM avatar WHERE id = ($1)', [id]);
-        const updateCustomer = await pool.query(
-            'UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 WHERE id = $6',
-            [name, email, handphone, fileNameAvatar, password, id]
-        );
+        if (!req.files){
+            return res.status(400).send('No files were uploaded.');
+        }
+        var file = req.files.avatar;
+        var img_name=file.name;
+            if(file.mimetype == "image/jpeg" ||file.mimetype == "image/png"||file.mimetype == "image/gif" ){
+                file.mv('images/'+file.name, function(err) {
+                    if (err){
+                        return res.status(500).send(err);
+                    }    
+                    var sql = ('UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 WHERE id = $6', 
+                        [name, email, handphone, img_name, password, id]);
+                    var query = db.query(sql, function(err, result) {
+                        res.json(result.insertId);
+                    });
+                });
+        } else {
+            message = "This format is not allowed , please upload file with '.png','.gif','.jpg'";
+            res.json('index.ejs',{message: message});
+        }
 
-        res.json({ success: true, fileNameAvatar });
+        // const fileNameAvatar = await pool.query('SELECT filename FROM avatar WHERE id = ($1)', [id]);
+        // const updateCustomer = await pool.query(
+        //     'UPDATE customer SET name = $1, email = $2, handphone = $3, avatar = $4, password = $5 WHERE id = $6',
+        //     [name, email, handphone, fileNameAvatar, password, id]
+        // );
+
+        res.json({ success: true});
     } catch (err) {
         console.error(err.message);
     }

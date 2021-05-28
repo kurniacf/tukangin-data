@@ -69,3 +69,23 @@ CREATE TABLE customer(
     size BIGINT NOT NULL
 );
 
+CREATE TABLE tukang(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR (50) NOT NULL,
+    handphone VARCHAR(15) NOT NULL,
+    ktp TEXT,
+    selfi_ktp TEXT,
+    password VARCHAR(255) NOT NULL
+);
+
+-- TEST
+CREATE TABLE IF NOT EXISTS users_image (
+    id SERIAL PRIMARY KEY NOT NULL ,
+    first_name varchar(255) NOT NULL,
+    last_name varchar(255) NOT NULL,
+    image varchar(255) NOT NULL,
+    mob_no INTEGER NOT NULL,
+    user_name varchar(20) NOT NULL,
+    password varchar(255) NOT NULL
+);
